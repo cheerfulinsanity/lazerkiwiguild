@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>Lazer Kiwi - Home</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet"/>
+  <style>
+    body {
+      background-color: #000;
+      color: #00FF00;
+      font-family: 'Orbitron', sans-serif;
+      text-align: center;
+      padding: 40px;
+    }
+    h2 {
+      font-size: 32px;
+      margin-bottom: 30px;
+      color: #00FF00;
+      text-shadow: 0 0 4px #00FF00;
+    }
+    h3 {
+      text-shadow: 0 0 3px #ab6e11;
+    }
+    .discord-button {
+      background-color: #ab6e11;
+      color: black;
+      font-size: 18px;
+      padding: 12px 24px;
+      border: none;
+      text-decoration: none;
+      font-weight: bold;
+      border-radius: 6px;
+      transition: background-color 0.3s, box-shadow 0.3s;
+      display: inline-block;
+      box-shadow: 0 0 6px #00FF00;
+    }
+    .discord-button:hover {
+      background-color: #d07f1e;
+      box-shadow: 0 0 10px #ab6e11;
+    }
+    .ai-gallery {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      max-width: 1100px;
+      margin: 40px auto 0 auto;
+    }
+    .ai-img {
+      width: 250px;
+      border: 2px solid #00FF00;
+      transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+      cursor: pointer;
+      box-shadow: 0 0 4px #00FF00;
+    }
+    .ai-img:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 8px #00FF00;
+    }
+    .news-scroll-box {
+      max-height: 300px;
+      overflow-y: auto;
+      padding-right: 10px;
+      position: relative;
+      scrollbar-width: thin;
+      scrollbar-color: #00FF00 #111;
+    }
+    .news-scroll-box::before {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 60px;
+      background: linear-gradient(to bottom, transparent, #000);
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      opacity: 1;
+    }
+    .news-scroll-box.scrolled-to-bottom::before {
+      opacity: 0;
+    }
+    .news-scroll-box::-webkit-scrollbar {
+      width: 8px;
+    }
+    .news-scroll-box::-webkit-scrollbar-track {
+      background: #111;
+    }
+    .news-scroll-box::-webkit-scrollbar-thumb {
+      background-color: #00FF00;
+      border-radius: 4px;
+      border: 2px solid #111;
+    }
+
+    /* 📱 Mobile Responsiveness */
+    @media (max-width: 600px) {
+      .ai-img {
+        width: 90%;
+      }
+
+      h1, h2 {
+        font-size: 24px;
+      }
+
+      .news-scroll-box {
+        max-height: 200px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h2>Lazer Kiwi - Home</h2>
+  <p style="color: #00FF00; font-size: 16px; margin: 20px auto; width: 90%; max-width: 800px;">
+    Welcome! I spent way too much time on this, but I enjoyed it very much. Made with Chat GPT because I have no idea how to code.
+    Design tips and future additions can be submitted to me on discord. The point at present is just to facilitate a range of data display,
+    (which I have managed to scrape from the Stratz website using the console commands and performed various manipulations on).
+    I don't pretend it's perfectly accurate, but it's probably fairly good, and I'm quite proud of it :)
+  </p>
+
+  <div id="visit-counter" style="margin: 20px auto; font-size: 18px; color: #00FF00;">Loading visit count...</div>
+  <script>
+    const visitCounterEl = document.getElementById("visit-counter");
+    const isDev = localStorage.getItem("lk_dev");
+    const isLocal = location.protocol === "file:";
+    const baseURL = "https://script.google.com/macros/s/AKfycbztKjPJahRvifOZBqlOA890PBXK5AqAqv2VksE7A1JlAHN84gQ98mxVjwDi98K6Sn6nsg/exec";
+    const endpoint = (!isDev && !isLocal) ? baseURL + "?increment=true" : baseURL;
+
+    fetch(endpoint)
+      .then(response => response.json())
+      .then(data => {
+        const count = data.visits || 0;
+        if (isDev || isLocal) {
+          visitCounterEl.textContent = `👁️ This page has been visited ${count} times. (dev mode or local: not counted)`;
+        } else {
+          visitCounterEl.textContent = `👁️ This page has been visited ${count} times.`;
+        }
+      })
+      .catch(() => {
+        visitCounterEl.textContent = `Unable to load visit count.`;
+      });
+  </script>
+
+  <a class="discord-button" href="https://discord.gg/jPtne9AhGS" style="margin-bottom: 20px;" target="_blank">Join Our Discord</a>
+
+  <section id="news-updates" style="margin: 60px auto 40px; max-width: 900px;">
+    <h2>News & Updates</h2>
+    <div class="news-scroll-box" id="newsScrollBox">
+      <div id="news-container" style="text-align: left; padding: 0 20px;"></div>
+    </div>
+  </section>
+
+  <section style="margin-top: 60px;">
+    <div class="ai-gallery">
+      <img alt="AI Kiwi" class="ai-img" src="home_gallery_assets/AIKiwi1.png"/>
+      <img alt="AI Kiwi" class="ai-img" src="home_gallery_assets/AIKiwi2.png"/>
+      <img alt="AI Kiwi" class="ai-img" src="home_gallery_assets/AIKiwi3.png"/>
+      <img alt="AI Kiwi" class="ai-img" src="home_gallery_assets/AIKiwi4.png"/>
+      <img alt="AI Kiwi" class="ai-img" src="home_gallery_assets/AIKiwi10.png"/>
+      <img alt="AI Kiwi" class="ai-img" src="home_gallery_assets/AIKiwi12.png"/>
+      <img alt="AI Kiwi" class="ai-img" src="home_gallery_assets/AIKiwi13.png"/>
+      <img alt="AI Kiwi" class="ai-img" src="home_gallery_assets/AIKiwi6.png"/>
+      <img alt="AI Kiwi" class="ai-img" src="home_gallery_assets/AIKiwi8.png"/>
+      <img alt="AI Kiwi" class="ai-img" src="home_gallery_assets/AIKiwi9.png"/>
+    </div>
+  </section>
+
+  <script>
+    const newsEndpoint = "https://script.google.com/macros/s/AKfycbzO8o3mKTDxHg5L2FGYe_ClEQtVZDy2HTW1JkXGsF5XJEbFNIoKejOU4jSDJGzMfqyXMg/exec";
+
+    fetch(newsEndpoint)
+      .then(res => res.json())
+      .then(items => {
+        const container = document.getElementById("news-container");
+        if (!items.length) {
+          container.innerHTML = "<p>No news yet. Stay tuned!</p>";
+          return;
+        }
+        items.sort((a, b) => new Date(a.Date) - new Date(b.Date));
+        items.reverse();
+        items.forEach(item => {
+          const article = document.createElement("div");
+          article.style.marginBottom = "30px";
+          article.innerHTML = `
+            <h3 style="color:#ab6e11; font-size:20px;">${item.Date.split("T")[0]} - ${item.Title}</h3>
+            <p style="font-size:16px; color:#00FF00;">${item.Content}</p>
+          `;
+          container.appendChild(article);
+        });
+      })
+      .catch(() => {
+        document.getElementById("news-container").innerHTML = "<p style='color:#FF0000;'>Failed to load news.</p>";
+      });
+
+    const scrollBox = document.getElementById("newsScrollBox");
+    scrollBox.addEventListener("scroll", () => {
+      const atBottom = scrollBox.scrollTop + scrollBox.clientHeight >= scrollBox.scrollHeight - 1;
+      scrollBox.classList.toggle("scrolled-to-bottom", atBottom);
+    });
+  </script>
+</body>
+</html>

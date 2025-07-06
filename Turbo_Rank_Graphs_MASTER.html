@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>
+   Turbo Rank Graphs
+  </title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js">
+  </script>
+  <style>
+
+h2 {
+  color: #00FF00;
+  text-shadow: 0 0 4px #00FF00;
+}
+h3 {
+  text-shadow: 0 0 3px #ab6e11;
+}
+button, select {
+  box-shadow: 0 0 6px #00FF00;
+  transition: box-shadow 0.3s;
+}
+button:hover, select:hover {
+  box-shadow: 0 0 10px #ab6e11;
+}
+
+   body {
+        background-color: #000000;
+        color: #00FF00;
+        font-family: 'Orbitron', sans-serif;
+        margin: 40px;
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 20px;
+        font-size: 32px;
+        color: #00FF00;
+    }
+
+    #dropdownContainer {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    #playerSelect {
+        padding: 10px 14px;
+        font-size: 18px;
+        background-color: #000000;
+        color: #00FF00;
+        border: 2px solid #ab6e11;
+        border-radius: 4px;
+    }
+
+    #chartContainer {
+        display: none;
+        width: 100%;
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    canvas {
+        background-color: #000000 !important;
+    }
+
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&amp;display=swap" rel="stylesheet"/>
+ </head>
+ <body>
+  <div class="tab-content" id="TurboRankGraphs">
+   <h2 style="color: #00FF00; text-align: center;">
+    Turbo Rank Progress Graph
+   </h2>
+   <p style="color: #00FF00; font-size: 16px; text-align: center; margin: 10px auto 30px; width: 80%; max-width: 800px;">
+    Turbo Rank Progress data is only collected for members who have exposed their public match data.
+  If you want to be included, expose your public match data in the Dota 2 Social settings,
+  and let the Bag of Dicks know. Data is based on an average of the rank of your last 15 solo turbo games.
+   </p>
+   <div id="loadingMessage" style="margin-top: 30px; font-size: 18px; color: #00FF00; animation: blink 1s step-end infinite; text-align: center;">
+    Loading player list...
+   </div>
+   <div id="dropdownContainer" style="display: none;">
+    <select id="playerSelect">
+     <option>
+      Loading player list...
+     </option>
+    </select>
+   </div>
+   <div id="chartContainer">
+    <canvas id="rankChart">
+    </canvas>
+   </div>
+   <script>
+    const endpoint = "https://script.google.com/macros/s/AKfycbzjviloMAM-KHYnkDDiPiFvR-nqDqauAm2XAsHWolH4JTWloINQ8tWGrO17GwHFKKP1Ow/exec";
+
+    const rankNames = [
+      "Herald 1", "Herald 2", "Herald 3", "Herald 4", "Herald 5",
+      "Guardian 1", "Guardian 2", "Guardian 3", "Guardian 4", "Guardian 5",
+      "Crusader 1", "Crusader 2", "Crusader 3", "Crusader 4", "Crusader 5",
+      "Archon 1", "Archon 2", "Archon 3", "Archon 4", "Archon 5",
+      "Legend 1", "Legend 2", "Legend 3", "Legend 4", "Legend 5",
+      "Ancient 1", "Ancient 2", "Ancient 3", "Ancient 4", "Ancient 5",
+      "Divine 1", "Divine 2", "Divine 3", "Divine 4", "Divine 5",
+      "Immortal"
+    ];
+
+    function drawChart(dates, ranks, minRank, maxRank) {
+      const ctx = document.getElementById("rankChart").getContext("2d");
+      const chartContainer = document.getElementById("chartContainer");
+      chartContainer.style.display = "block";
+
+      if (window.turboChart) {
+        window.turboChart.destroy();
+      }
+
+      window.turboChart = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: [dates[0], dates[1]],
+          datasets: [{
+            label: "Turbo Rank",
+            data: [ranks[0], ranks[1]],
+            fill: false,
+            borderColor: "#4caf50",
+            tension: 0.2,
+            showLine: true,
+            pointBackgroundColor: "#4caf50",
+            pointRadius: 6,
+            pointBorderColor: "#00FF00",
+            pointBackgroundColor: "#00FF00",
+            borderColor: "#00FF00"
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+
+x: {
+  offset: true,
+  grid: { display: false },
+  ticks: {
+    color: '#00FF00',
+    font: {
+      size: 14
+    }
+  }
+},
+y: {
+              min: minRank,
+              max: maxRank,
+              ticks: {
+                color: '#00FF00',
+                callback: function(value) {
+                  return rankNames[value] || "";
+                },
+                stepSize: 1
+              }
+            },
+            x: {
+              offset: true,
+              grid: { display: false },
+              ticks: {
+  color: '#00FF00'
+}
+            }
+          }
+        }
+      });
+    }
+
+    async function init() {
+      const res = await fetch(endpoint);
+      const data = await res.json();
+
+      const select = document.getElementById("playerSelect");
+      
+    select.innerHTML = '<option disabled selected>Select player</option>';
+    document.getElementById("loadingMessage").style.display = 'none';
+    document.getElementById("dropdownContainer").style.display = 'block';
+    
+
+      const players = Object.keys(data);
+      players.forEach(player => {
+        if (data[player]) {
+          const option = document.createElement("option");
+          option.value = player;
+          option.textContent = player;
+          select.appendChild(option);
+        }
+      });
+
+      select.addEventListener("change", () => {
+        const player = select.value;
+        const record = data[player];
+        const dates = Object.keys(record);
+        const ranks = Object.values(record);
+
+        if (ranks.includes(null)) return;
+
+        const min = Math.max(0, Math.min(...ranks) - 2);
+        const max = Math.min(rankNames.length - 1, Math.max(...ranks) + 2);
+        drawChart(dates, ranks, min, max);
+      });
+    }
+
+    init();
+   </script>
+  </div>
+ </body>
+</html>

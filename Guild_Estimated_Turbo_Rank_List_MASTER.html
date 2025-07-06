@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="utf-8"/>
+  <title>
+   Lazer Kiwi - Guild Estimated Turbo Rank List
+  </title>
+  <style>
+
+h2 {
+  color: #00FF00;
+  text-shadow: 0 0 4px #00FF00;
+}
+h3 {
+  text-shadow: 0 0 3px #ab6e11;
+}
+
+
+h2 {
+  color: #00FF00;
+  text-shadow: 0 0 4px #00FF00;
+}
+h3 {
+  text-shadow: 0 0 3px #ab6e11;
+}
+button, select {
+  box-shadow: 0 0 6px #00FF00;
+  transition: box-shadow 0.3s;
+}
+button:hover, select:hover {
+  box-shadow: 0 0 10px #ab6e11;
+}
+
+   body {
+        background-color: #000000;
+        color: #00FF00;
+        font-family: 'Orbitron', sans-serif;
+        text-align: center;
+        font-size: 16px;
+    }
+
+    h1 {
+        margin-top: 20px;
+        font-size: 32px;
+        color: #00FF00;
+    }
+
+    table {
+        margin: 0 auto;
+        border-collapse: collapse;
+        width: 80%;
+    }
+
+    th {
+        border: 2px solid #ab6e11;
+        padding: 10px;
+        background-color: #111;
+        color: #00FF00;
+        font-size: 18px;
+        font-weight: bold;
+    }
+
+    td {
+        border: 2px solid #ab6e11;
+        padding: 8px;
+        background-color: #000;
+        font-size: 15px;
+        font-weight: normal;
+    }
+
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&amp;display=swap" rel="stylesheet"/>
+ </head>
+ <body>
+  <div class="tab-content" id="guild-rank-list">
+   <h1 id="rankHeading" style="color:#00FF00; text-shadow: 0 0 4px #00FF00;">Guild Estimated Turbo Rank List</h1>
+   <p style="color: #00FF00; font-size: 16px; margin: 20px auto; width: 80%; max-width: 800px;">
+    This rank list only includes data for members who have exposed their public match data.
+  If you want to be included, expose your public match data in the Dota 2 Social settings,
+  and let the Bag of Dicks know. Data is based on an average of the rank of your last 15 solo turbo games.
+   </p>
+   <div id="loadingMessage" style="margin-top: 30px; font-size: 18px; color: #00FF00; animation: blink 1s step-end infinite;">
+    Loading leaderboard...
+   </div>
+   <table style="display: none;">
+    <thead>
+     <tr>
+      <th>Position</th>
+      <th>Nickname</th>
+      <th>
+       Rank
+      </th>
+     </tr>
+    </thead>
+    <tbody id="rankTableBody">
+     <!-- Data will be inserted here by JavaScript -->
+    </tbody>
+   </table>
+   <script>
+    fetch("https://script.google.com/macros/s/AKfycbzjviloMAM-KHYnkDDiPiFvR-nqDqauAm2XAsHWolH4JTWloINQ8tWGrO17GwHFKKP1Ow/exec")
+            .then(response => response.json())
+            .then(data => {
+                const rankLabels = [
+                    "Herald", "Guardian", "Crusader", "Archon", "Legend", "Ancient", "Divine", "Immortal"
+                ];
+
+                function rankNumberToLabel(rankValue) {
+                    const tier = Math.floor((rankValue - 1) / 5);
+                    const star = ((rankValue - 1) % 5) + 1;
+                    return `${rankLabels[tier]} ${star} Star`;
+                }
+
+                const latestDate = Object.keys(data[Object.keys(data)[0]]).slice(-1)[0];
+                document.getElementById("rankHeading").textContent = `Guild Estimated Turbo Rank List (As of ${latestDate})`;
+
+                const sortedEntries = Object.entries(data)
+                    .map(([name, ranks]) => [name, ranks[latestDate]])
+                    .filter(([_, rank]) => typeof rank === "number")
+                    .sort((a, b) => b[1] - a[1]);
+
+                const tbody = document.getElementById("rankTableBody");
+                const table = document.querySelector("table");
+                const loading = document.getElementById("loadingMessage");
+
+                sortedEntries.forEach(([nickname, rankValue], index) => {
+                    const tr = document.createElement("tr");
+
+                    const tdPos = document.createElement("td");
+                    tdPos.textContent = index + 1;
+
+                    const tdName = document.createElement("td");
+                    tdName.textContent = nickname;
+
+                    const tdRank = document.createElement("td");
+                    tdRank.textContent = rankNumberToLabel(rankValue);
+
+                    tr.appendChild(tdPos);
+                    tr.appendChild(tdName);
+                    tr.appendChild(tdRank);
+
+                    tbody.appendChild(tr);
+                });
+
+                loading.style.display = 'none';
+                table.style.display = 'table';
+
+            });
+   </script>
+  </div>
+ </body>
+</html>

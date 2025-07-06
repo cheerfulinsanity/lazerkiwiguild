@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta charset="utf-8"/>
+  <title>
+   Party Average Rank Estimator
+  </title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&amp;display=swap" rel="stylesheet"/>
+  <style>
+
+h2 {
+  color: #00FF00;
+  text-shadow: 0 0 4px #00FF00;
+}
+h3 {
+  text-shadow: 0 0 3px #ab6e11;
+}
+button, select {
+  box-shadow: 0 0 6px #00FF00;
+  transition: box-shadow 0.3s;
+}
+button:hover, select:hover {
+  box-shadow: 0 0 10px #ab6e11;
+}
+
+   body {
+      background-color: black;
+      color: #00FF00;
+      font-family: 'Orbitron', sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+    }
+    h2 {
+      font-size: 28px;
+      margin-bottom: 20px;
+      color: #00FF00;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    select {
+      margin: 6px;
+      background: #000;
+      color: #00FF00;
+      border: 2px solid #ab6e11;
+      font-size: 16px;
+      padding: 6px 10px;
+      font-family: 'Orbitron', sans-serif;
+    }
+    button {
+      background-color: #ab6e11;
+      color: black;
+      font-weight: bold;
+      margin: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      cursor: pointer;
+      font-family: 'Orbitron', sans-serif;
+    }
+    .result-display {
+      margin-top: 20px;
+      font-size: 24px;
+      color: #00FF00;
+    }
+  </style>
+ </head>
+ <body>
+  <div class="tab-content" id="party-average-rank-estimator">
+   <h2>
+    Party Average Rank Estimator
+   </h2>
+   <p style="color: #00FF00; font-size: 16px; margin: 10px auto 30px; width: 80%; max-width: 800px;">
+    Turbo Rank data is approximate for guild members who have not exposed their public match data.
+  If you want your rank to be more accurate, expose your match data in the Dota 2 Social settings,
+  and let the Bag of Dicks know. Data is based on an average of the rank of your last 15 solo turbo games.
+   </p>
+   <div class="container">
+    <select id="player1">
+     <option value="">
+      -- Select Player 1 --
+     </option>
+    </select>
+    <select id="player2">
+     <option value="">
+      -- Select Player 2 --
+     </option>
+    </select>
+    <select id="player3">
+     <option value="">
+      -- Select Player 3 --
+     </option>
+    </select>
+    <select id="player4">
+     <option value="">
+      -- Select Player 4 --
+     </option>
+    </select>
+    <select id="player5">
+     <option value="">
+      -- Select Player 5 --
+     </option>
+    </select>
+    <button onclick="calculateAverage()">
+     Estimate Rank
+    </button>
+    <div class="result-display" id="result">
+    </div>
+   </div>
+  </div>
+  <script>
+   const rankMap = {
+      1: "Herald 1 Star", 2: "Herald 2 Star", 3: "Herald 3 Star", 4: "Herald 4 Star", 5: "Herald 5 Star",
+      6: "Guardian 1 Star", 7: "Guardian 2 Star", 8: "Guardian 3 Star", 9: "Guardian 4 Star", 10: "Guardian 5 Star",
+      11: "Crusader 1 Star", 12: "Crusader 2 Star", 13: "Crusader 3 Star", 14: "Crusader 4 Star", 15: "Crusader 5 Star",
+      16: "Archon 1 Star", 17: "Archon 2 Star", 18: "Archon 3 Star", 19: "Archon 4 Star", 20: "Archon 5 Star",
+      21: "Legend 1 Star", 22: "Legend 2 Star", 23: "Legend 3 Star", 24: "Legend 4 Star", 25: "Legend 5 Star",
+      26: "Ancient 1 Star", 27: "Ancient 2 Star", 28: "Ancient 3 Star", 29: "Ancient 4 Star", 30: "Ancient 5 Star",
+      31: "Divine 1 Star", 32: "Divine 2 Star", 33: "Divine 3 Star", 34: "Divine 4 Star", 35: "Divine 5 Star"
+    };
+
+    const rankData = {
+      "Mickymicee": 28, "Babumboclaat": 24, "Mugen": 22, "Joe Dirt": 15, "Unkn0wn-": 17, "SeedyBiscuit": 17, "Slipstream": 15,
+      "Big Ol' Bag O' Dicks": 15, "Singularity": 15, "GoodMAx": 15, "Onemahu": 14, "Kaief": 13, "TurtleOmatic": 12,
+      "gavinng88": 12, "sedgy fergo": 9, "Beans": 9, "Canvas": 11, "GreekGod": 9, "StingKing": 7, "Squoogle": 7,
+      "Object": 11, "FierceX": 30, "JayJay": 27, "JB HIFI": 26, "𝕱𝖊𝖆𝖗𝕱𝖎𝖈𝖙": 25, "Q-Q Plot": 22, "Microsoft Outage": 22,
+      "LunchyyyYYyyyYyYyyyYYYyYyyYyyyYy": 21, "Frags": 20, "zueldakma": 16, "The presence of your savior": 15,
+      "george": 15, "Papa Shirogane (luciferous)": 15, "KumaraBones": 13, "DopaminE": 13, "Meta": 13,
+      "Chicken Crimpy": 12, "dazed": 12, "Meromero": 12, "Throbbin Hood": 11, "ʑΩR⨂Θ™": 11, "Blanket": 9,
+      "ItsAllGravy": 9, "PKMKB": 8, "Stiffcarrott": 7, "Headache": 7, "Tilda.Daniel": 7,
+      "y all say I'm dope I just smirk": 7, "BatSoupNZ": 15
+    };
+
+    const selects = ["player1", "player2", "player3", "player4", "player5"];
+
+    for (let id of selects) {
+      const sel = document.getElementById(id);
+      Object.keys(rankData).sort().forEach(name => {
+        const opt = document.createElement("option");
+        opt.value = name;
+        opt.textContent = name;
+        sel.appendChild(opt);
+      });
+    }
+
+    function calculateAverage() {
+      const players = selects.map(id => document.getElementById(id).value).filter(Boolean);
+      if (!players.length) {
+        document.getElementById("result").innerHTML = "<p>Please select at least one player.</p>";
+        return;
+      }
+      const values = players.map(p => rankData[p]);
+      const avg = values.reduce((a, b) => a + b, 0) / values.length;
+      const rankLabel = rankMap[Math.round(avg)] || "Unknown";
+      document.getElementById("result").innerHTML = `<p>Estimated Rank: <strong>${rankLabel}</strong></p>`;
+    }
+  </script>
+ </body>
+</html>

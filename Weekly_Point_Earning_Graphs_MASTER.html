@@ -1,0 +1,206 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Weekly Point Earning Graphs</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+
+h2 {
+  color: #00FF00;
+  text-shadow: 0 0 4px #00FF00;
+}
+h3 {
+  text-shadow: 0 0 3px #ab6e11;
+}
+button, select {
+  box-shadow: 0 0 6px #00FF00;
+  transition: box-shadow 0.3s;
+}
+button:hover, select:hover {
+  box-shadow: 0 0 10px #ab6e11;
+}
+
+    body {
+      background-color: #000;
+      color: #00FF00;
+      font-family: 'Orbitron', sans-serif;
+      padding: 40px;
+    }
+    h2 {
+      color: #00FF00;
+      font-size: 36px;
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    #dropdown-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 40px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+    label {
+      font-size: 18px;
+    }
+    select {
+      background-color: #000;
+      color: #00FF00;
+      border: 2px solid #00FF00;
+      padding: 8px 14px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 16px;
+    }
+    #comparisonChart {
+      display: block;
+      margin: 0 auto;
+      background-color: #000;
+      border: 2px solid #ab6e11;
+      max-width: 1200px;
+      max-height: 600px;
+    }
+    #loadingMessage {
+      text-align: center;
+      color: #00FF00;
+      animation: blink 1s step-end infinite;
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="tab-content" id="weekly-earning-graphs">
+    <h2>Weekly Point Earning Graphs</h2>
+    <div id="loadingMessage">Loading graph and data...</div>
+    <div id="dropdown-container" style="display:none;">
+      <label for="memberSelect1">Select Player 1:</label>
+      <select id="memberSelect1"></select>
+      <label for="memberSelect2">Select Player 2:</label>
+      <select id="memberSelect2"></select>
+    </div>
+    <canvas id="comparisonChart" width="1200" height="600"></canvas>
+  </div>
+
+  <script>
+    const endpoint = "https://script.google.com/macros/s/AKfycbz3txnsBI5fLUtGxuw2RwvUTlfTthoyNiufE3pdxEa0F4ESsMoN439s85T2C2da1Mg/exec";
+    let chart;
+
+    async function fetchData() {
+      const response = await fetch(endpoint);
+      const data = await response.json();
+      return data;
+    }
+
+    function initializeChart(labels, members) {
+      document.getElementById("loadingMessage").style.display = "none";
+      document.getElementById("dropdown-container").style.display = "flex";
+
+      const ctx = document.getElementById("comparisonChart").getContext("2d");
+
+      chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: []
+        },
+        options: {
+          responsive: false,
+          plugins: {
+            legend: {
+              labels: {
+                color: '#00FF00'
+              }
+            },
+            title: {
+              display: true,
+              text: 'Weekly Point Earning Comparison',
+              color: '#00FF00',
+              font: {
+                size: 20
+              }
+            }
+          },
+          scales: {
+            x: {
+              ticks: { color: '#00FF00' },
+              grid: { display: false }
+            },
+            y: {
+              ticks: { color: '#00FF00' },
+              grid: { display: false }
+            }
+          }
+        }
+      });
+
+      const select1 = document.getElementById("memberSelect1");
+      const select2 = document.getElementById("memberSelect2");
+
+      Object.keys(members).forEach(name => {
+        const opt1 = document.createElement("option");
+        opt1.value = name;
+        opt1.textContent = name;
+        select1.appendChild(opt1);
+
+        const opt2 = document.createElement("option");
+        opt2.value = name;
+        opt2.textContent = name;
+        select2.appendChild(opt2);
+      });
+
+      select1.addEventListener("change", () => updateChart(labels, members));
+      select2.addEventListener("change", () => updateChart(labels, members));
+    }
+
+    function updateChart(labels, members) {
+      const player1 = document.getElementById("memberSelect1").value;
+      const player2 = document.getElementById("memberSelect2").value;
+
+      const datasets = [];
+
+      if (player1 && members[player1]) {
+        datasets.push({
+          label: player1,
+          data: labels.map(date => members[player1][date] || 0),
+          borderColor: "#00FFFF",
+          backgroundColor: "#00FFFF",
+          fill: false,
+          tension: 0.3,
+          pointBorderColor: "#00FFFF",
+          pointRadius: 4
+        });
+      }
+
+      if (player2 && members[player2]) {
+        datasets.push({
+          label: player2,
+          data: labels.map(date => members[player2][date] || 0),
+          borderColor: "#FF6699",
+          backgroundColor: "#FF6699",
+          fill: false,
+          tension: 0.3,
+          pointBorderColor: "#FF6699",
+          pointRadius: 4
+        });
+      }
+
+      chart.data.datasets = datasets;
+      chart.update();
+    }
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      const data = await fetchData();
+      const labels = Object.keys(Object.values(data)[0]);
+      initializeChart(labels, data);
+    });
+
+    setInterval(() => location.reload(), 300000);
+  </script>
+</body>
+</html>

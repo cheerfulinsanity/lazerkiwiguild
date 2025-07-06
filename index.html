@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Lazer Kiwi</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    .tab-button {
+      box-shadow: 0 0 4px #00FF00;
+      transition: box-shadow 0.3s ease;
+    }
+    .tab-button:hover {
+      box-shadow: 0 0 8px #ab6e11;
+    }
+
+    nav a {
+      box-shadow: 0 0 4px #00FF00;
+      transition: box-shadow 0.3s;
+    }
+    nav a:hover {
+      box-shadow: 0 0 8px #ab6e11;
+    }
+
+    body {
+      background-color: #000;
+      color: #00FF00;
+      font-family: 'Orbitron', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 0;
+    }
+    header img {
+      width: 100%;
+      display: block;
+    }
+    nav {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      padding: 10px 0;
+      border-top: 2px solid #00FF00;
+      border-bottom: 2px solid #00FF00;
+      background-color: #000;
+    }
+    nav a {
+      text-decoration: none;
+      color: #00FF00;
+      font-weight: bold;
+      padding: 10px 16px;
+      border: 2px solid transparent;
+      border-radius: 4px;
+    }
+    nav a.active {
+      border-color: #ab6e11;
+      background-color: #111;
+    }
+    iframe.tab-frame {
+      width: 100%;
+      height: 2000px;
+      border: none;
+      display: none;
+      background: black;
+    }
+    iframe.active-tab {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="./home_gallery_assets/Banner.png" alt="Lazer Kiwi Banner">
+  </header>
+
+  <nav>
+    <a class="tab-button active" data-tab="home">Home</a>
+    <a class="tab-button" data-tab="turbo_graphs">Turbo Rank Graphs</a>
+    <a class="tab-button" data-tab="party_estimator">Party Rank Estimator</a>
+    <a class="tab-button" data-tab="weekly_leaderboard">Weekly Point Leaderboard</a>
+    <a class="tab-button" data-tab="weekly_graphs">Weekly Point Graphs</a>
+    <a class="tab-button" data-tab="guild_rank_list">Guild Rank List</a>
+  </nav>
+
+  <iframe class="tab-frame active-tab" id="home" src="Home_Page_MASTER.html"></iframe>
+  <iframe class="tab-frame" id="turbo_graphs" src="Turbo_Rank_Graphs_MASTER.html"></iframe>
+  <iframe class="tab-frame" id="party_estimator" src="Party_Average_Rank_Estimator_MASTER.html"></iframe>
+  <iframe class="tab-frame" id="weekly_leaderboard" src="Weekly_Guild_Point_Leaderboard_MASTER.html"></iframe>
+  <iframe class="tab-frame" id="weekly_graphs" src="Weekly_Point_Earning_Graphs_MASTER.html"></iframe>
+  <iframe class="tab-frame" id="guild_rank_list" src="Guild_Estimated_Turbo_Rank_List_MASTER.html"></iframe>
+
+  <script>
+    const tabs = document.querySelectorAll(".tab-button");
+    const frames = document.querySelectorAll(".tab-frame");
+
+    function showTab(id) {
+      frames.forEach(f => f.classList.remove("active-tab"));
+      tabs.forEach(t => t.classList.remove("active"));
+      document.getElementById(id).classList.add("active-tab");
+      document.querySelector(`[data-tab="${id}"]`).classList.add("active");
+    }
+
+    tabs.forEach(t => {
+      t.addEventListener("click", () => showTab(t.dataset.tab));
+    });
+
+    // Show the first tab by default
+    showTab("home");
+  </script>
+</body>
+</html>
